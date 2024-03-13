@@ -1,13 +1,14 @@
 from pygame import mixer
 from tkinter import messagebox
 from tkinter import *
-from PIL import ImageTk, Image
+from PIL import ImageTk
+
 import os
 
 os.chdir(r'musicas')
 musicas = os.listdir()
 
-selected_index = 0
+
 
 win = Tk()
 
@@ -21,7 +22,6 @@ nextImage = ImageTk.PhotoImage(file='../imagens/seta-para-a-direita.png')
 img = ImageTk.PhotoImage(file='../imagens/YT_Music.jpg')
     
 selected_index = 0
-                    
 
 class App(Tk):    
     def __init__(self):
@@ -49,18 +49,19 @@ class App(Tk):
         
         self.current_track = Label(self.frame_1, text='Current Track', bg='black', fg='white', width=48, height=1)
         self.current_track.pack()
-        #self.current_track.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+
+        self.scrollbar = Scrollbar(self.frame_1, orient=VERTICAL)
+        self.scrollbar.pack(side=LEFT, fill=Y)
         
     def listas(self):
         self.listbox = Listbox(self.frame_1, bg='#31363F', fg='white')
         self.listbox.pack()
         self.listbox.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
         for music in musicas:
-            self.listbox.insert(END, music)
-            self.listbox.get(ACTIVE)           
+            self.listbox.insert(END, music)    
             
     def buttons(self):
-        self.bt_play = Button(self.win, bg='#31363F', image=playImage, text='>', command=play, relief='raised', overrelief='ridge')
+        self.bt_play = Button(self.win, bg='#31363F', image=playImage, text='>', command=lambda: play(self), relief='raised', overrelief='ridge')
         self.bt_play.pack()
         self.bt_play.place(relx=0.35, rely=0.88, relheight=0.08, relwidth=0.08)
         
@@ -76,7 +77,7 @@ class App(Tk):
         self.bt_next.pack()
         self.bt_next.place(relx=0.65, rely=0.89, relheight=0.06, relwidth=0.06)
         
-        self.bt_back = Button(self.win, bg='#31363F', image=backImage, text='<<', command=back_song, relief='raised', overrelief='ridge')
+        self.bt_back = Button(self.win, bg='#31363F', image=backImage, text='<<', command=prev_song, relief='raised', overrelief='ridge')
         self.bt_back.pack()
         self.bt_back.place(relx=0.27, rely=0.89, relheight=0.06, relwidth=0.06)        
         
@@ -84,9 +85,11 @@ class App(Tk):
 #     bg = contents[current_song]['background'] 
 #     print(bg)       
         
-def play():
+def play(self):
+    global selected_index
+    selected_index = self.listbox.curselection()[0]
     mixer.init()
-    song = music
+    song = musicas[selected_index]
     mixer.music.load(song)
     mixer.music.play()
     if mixer.music.get_busy() == 0:
@@ -100,15 +103,27 @@ def unpause():
 
 def next_song():
     mixer.music.stop()
-    song = f'musicas/{contents[selected_index]['song']}.mp3'
-    print(selected_index)
+    global selected_index
+    if(selected_index + 1 < len(musicas)):
+        selected_index += 1
+    else:
+        selected_index = 0
+    song = f'{musicas[selected_index]}'
+    print(song, selected_index)
     mixer.music.load(song)
     mixer.music.play()
     
-def back_song():
+def prev_song():
     mixer.music.stop()
-    song = f'musicas/{contents[selected_index]['song']}.mp3'
+    global selected_index
+    if(selected_index - 1 < 0):
+        selected_index = len(musicas) - 1
+    else:
+        selected_index -= 1
+    song = f'{musicas[selected_index]}'
+    print(song, selected_index)
     mixer.music.load(song)
     mixer.music.play()
 
-App()
+
+app_instance = App()
