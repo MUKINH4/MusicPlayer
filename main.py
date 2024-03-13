@@ -1,8 +1,6 @@
 from pygame import mixer
-from tkinter import messagebox
 from tkinter import *
 from PIL import ImageTk
-
 import os
 
 os.chdir(r'musicas')
